@@ -24,8 +24,13 @@ describe GettextI18nRails::ModelAttributesFinder do
       keys = finder.find({}).keys
       expected = [CarSeat, Part, StiParent]
       expected.concat [AbstractParentClass, NotConventional] if Rails::VERSION::MAJOR >= 3
-      expected.concat [ActiveRecord::SchemaMigration] if Rails::VERSION::MAJOR >= 4
-      expected.concat [ActiveRecord::InternalMetadata] if Rails::VERSION::MAJOR >= 5
+      # Since Rails 7.1, migration metadata classes no longer inherit from Base.
+      if Rails::VERSION::MAJOR >= 4 && ActiveRecord::SchemaMigration < ActiveRecord::Base
+        expected.concat [ActiveRecord::SchemaMigration]
+      end
+      if Rails::VERSION::MAJOR >= 5 && ActiveRecord::InternalMetadata < ActiveRecord::Base
+        expected.concat [ActiveRecord::InternalMetadata]
+      end
       keys.should =~ expected
     end
 
