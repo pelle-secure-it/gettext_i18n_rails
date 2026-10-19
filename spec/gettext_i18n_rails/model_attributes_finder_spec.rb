@@ -24,8 +24,11 @@ describe GettextI18nRails::ModelAttributesFinder do
       keys = finder.find({}).keys
       expected = [CarSeat, Part, StiParent]
       expected.concat [AbstractParentClass, NotConventional] if Rails::VERSION::MAJOR >= 3
-      expected.concat [ActiveRecord::SchemaMigration] if Rails::VERSION::MAJOR >= 4
-      expected.concat [ActiveRecord::InternalMetadata] if Rails::VERSION::MAJOR >= 5
+      # Rails 7.1 stopped making these internal classes ActiveRecord models.
+      if Gem::Version.new(Rails::VERSION::STRING) < Gem::Version.new('7.1')
+        expected.concat [ActiveRecord::SchemaMigration] if Rails::VERSION::MAJOR >= 4
+        expected.concat [ActiveRecord::InternalMetadata] if Rails::VERSION::MAJOR >= 5
+      end
       keys.should =~ expected
     end
 
